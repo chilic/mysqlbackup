@@ -4,7 +4,7 @@ __author__ = 'chilic'
 
 import ConfigParser
 import os
-from datetime import date
+from datetime import date, datetime
 from calendar import monthrange
 
 # On Debian, /etc/mysql/debian.cnf contains 'root' a like login and password.
@@ -21,6 +21,9 @@ backup_dir_weekly = "%s/weekly" % backup_dir
 backup_dir_monthly = "%s/monthly" % backup_dir
 weekday_for_first_day, last_month_day = monthrange(date.today().year, date.today().month)
 
+# Mysqldump options. @see http://dev.mysql.com/doc/refman/5.1/en/mysqldump.html
+options = "-f --skip-lock-tables"
+
 if not os.path.exists(backup_dir_daily):
     os.makedirs(backup_dir_daily)
 
@@ -29,7 +32,6 @@ if not os.path.exists(backup_dir_weekly):
 
 if not os.path.exists(backup_dir_monthly):
     os.makedirs(backup_dir_monthly)
-
 
 # Get a list of databases with :
 database_list_command = "mysql -u %s -p%s -h %s --silent -N -e 'show databases'" % (username, password, hostname)
@@ -41,8 +43,8 @@ for database in os.popen(database_list_command).readlines():
         continue
 
     filename = "%s/%s.sql" % (backup_dir_daily, database)
-    proc = os.popen("mysqldump -u %s -p%s -h %s -e --opt -c %s | gzip -c > %s.gz" % (
-        username, password, hostname, database, filename))
+    proc = os.popen("mysqldump -u %s -p%s -h%s %s %s | gzip -c > %s.gz" % (
+        username, password, hostname, options, database, filename))
     proc.close()
 
     if date.today().isoweekday() is 1:
