@@ -4,7 +4,7 @@ __author__ = 'chilic'
 
 import ConfigParser
 import os
-from datetime import date, datetime
+from datetime import date
 from calendar import monthrange
 
 # On Debian, /etc/mysql/debian.cnf contains 'root' a like login and password.
